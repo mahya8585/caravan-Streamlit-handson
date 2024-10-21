@@ -192,6 +192,8 @@ Streamlitを使って作成したアプリは、HerokuやStreamlit Sharingなど
 1. [Streamlit公式ページ](https://streamlit.io/) 右上の `Sign up` で Streamlit Community Cloud のアカウトを作成
 2. GitHubと連携
 ![GitHubと連携](https://streamlit-yolo-hands-on.readthedocs.io/ja/latest/_images/streamlit_deploy1.png)
+3. `create app` から、必要な項目を入力して Deploy! ボタンをクリックするだけ
+![Deploy](https://streamlit-yolo-hands-on.readthedocs.io/ja/latest/_images/streamlit_deploy2.png)
 '''
 
 '''
