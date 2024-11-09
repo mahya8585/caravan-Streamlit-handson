@@ -46,11 +46,12 @@ import pandas as pd
 
 '''
 #### 1. テキスト表示
-Streamlitではテキストを表示するために **st.text()** や **st.markdown()** を使用します
+Streamlitではテキストを表示するために **st.text()** や **st.markdown()** を使用します    
+[Markdown記法についてはこちら](https://support-ja.backlog.com/hc/ja/articles/360036145833-%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E6%95%B4%E5%BD%A2%E3%81%AE%E3%83%AB%E3%83%BC%E3%83%AB-Markdown-%E8%A8%98%E6%B3%95)
+
 ```python
 st.title('PyLadies Carevan Streamlitハンズオン！')
 st.text('markdown記法についてはこのリンクを参照してください')
-[Markdown記法についてはこちら](https://support-ja.backlog.com/hc/ja/articles/360036145833-%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E6%95%B4%E5%BD%A2%E3%81%AE%E3%83%AB%E3%83%BC%E3%83%AB-Markdown-%E8%A8%98%E6%B3%95)
 
 st.markdown('### これはMarkdownです')
 st.markdown('- チェックリストや **ボールド文字** なども使えます')
