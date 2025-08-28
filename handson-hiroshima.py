@@ -4,7 +4,7 @@ st.title('PyLadies Carevan Streamlit Hands-On')
 
 '''
 ## まずはじめに
-とりあえず有無を言わさずStreamlitをインストールしましょう
+とりあえず有無を言わさずStreamlitをインストールしましょう    
 pip install streamlit
 
 色々なファイルが入ってくるので少し待つことにします。その間にStreamlitについて簡単に説明します
@@ -76,7 +76,9 @@ df = pd.DataFrame({
     'B列': [10, 20, 40, 30],
     'C列': [400, 100, 200, 300],
 })
+```
 
+```python
 # st.writeを使ったDataFrameの表示
 st.write(df)
 
@@ -109,7 +111,9 @@ chart_data = pd.DataFrame(
     columns=['2015', '2020', '2023'],
     index=pd.CategoricalIndex(months, categories=months, ordered=True)
 )
+```
 
+```python
 st.line_chart(chart_data)
 st.area_chart(chart_data)
 st.bar_chart(chart_data)
@@ -190,7 +194,7 @@ csvファイルをアップロードして表示させることも簡単にで�
 uploaded_csv_file = st.file_uploader('csvファイルを選択してください', type=['csv'])
 if uploaded_csv_file is not None:
     csv_df = pd.read_csv(uploaded_csv_file)
-    st.write(df)
+    st.write(csv_df)
 ```
 '''
 
@@ -207,24 +211,24 @@ if uploaded_csv_file is not None:
 ひとつ前のセクションで紹介した **st.file_uploader()** を使って、緯度経度情報及びごみ量のデータをアップロードしてみましょう
 
 ```python
-oceantrash_csv_file = st.file_uploader('ごみ量とその海岸のデータが入ったcsvファイルを選択してください', type=['csv'])
+mg_df = None
+marine_garbage_csv_file = st.file_uploader('ごみ量とその海岸のデータが入ったcsvファイルを選択してください', type=['csv'])
 
-ocean_trash_data = {}
-if oceantrash_csv_file is not None:
+if marine_garbage_csv_file is not None:
     # CSVファイルをデータフレームに読み込む
-    csv_df = pd.read_csv(oceantrash_csv_file)
-    
-    # 必要な列を抽出(表頭に合わせる)
-    ocean_trash_data = csv_df[['latitude', 'longitude', 'trash_amount']].to_dict(orient='list')
+    mg_df = pd.read_csv(marine_garbage_csv_file)
 
-st.write("抽出されたデータ:", ocean_trash_data)
+    # (この後出てくるコードはすべてこのif文の中に書いてください)
 ```
 
-### 緯度経度データのdataframe化
-グラフ表示の項目で記述したように、pandasを使って緯度経度情報及びごみ量のデータをdataframe化します
+### 海岸と季節が一致するレコードの体積を集計
+グラフ表示の項目で記述したように、pandasを使って緯度経度情報及びごみ量のデータをdataframe化します。今回はヒートマップを作成したいので、季節ごとの海岸のごみ体積を集計したデータを利用してみることにします。
 
 ```python
-ocean_trash_df = pd.DataFrame(ocean_trash_data)
+# 海岸と季節が一致するレコードの体積を集計
+    coast_season_amount = mg_df.groupby(['海岸','緯度','経度','季節'])['体積L'].sum().reset_index()
+    st.write('海岸ごとの季節別ごみ量')
+    st.write(coast_season_amount)
 ```
 
 ### 地図表示
@@ -242,35 +246,51 @@ import pydeck as pdk
 ```
 
 ```python
-# Pydeckを利用したヒートマップレイヤーの作成
-ocean_trash_layer = pdk.Layer(
-    "HeatmapLayer",
-    ocean_trash_df,
-    get_position='[longitude, latitude]',
-    get_weight='trash_amount',
-    radiusPixels=50,  # ヒートマップの半径
-)
+# 初期の地図の表示設定(広島県の中心付近)
+    view_state = pdk.ViewState(
+        latitude=34.3963,
+        longitude=132.4596, 
+        zoom=8,
+        pitch=50,
+    )
 ```
 
 ```python
-# 初期の地図の表示設定
-view_state = pdk.ViewState(
-    latitude=35.6895,
-    longitude=139.6917,
-    zoom=5,
-    pitch=50,
-)
+# Pydeckを利用したヒートマップレイヤーの作成
+    layer = pdk.Layer(
+        "HeatmapLayer",
+        coast_season_amount[coast_season_amount['季節'] == '春'],
+        get_position='[経度, 緯度]',
+        get_weight='体積L',
+        radiusPixels=40,  # ヒートマップの半径
+    )
 ```
 
 ```python
 # 地図の表示
-deck = pdk.Deck(
-    layers=[ocean_trash_layer],
-    initial_view_state=view_state,
-)
+    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
+```
 
-st.pydeck_chart(deck)
+どうですか？地図が表示されましたか？まだ一つの季節しか表示していないので、次のセクションで季節ごとのヒートマップを作成してみましょう
+
+これから春以外の季節のヒートマップも作成しますが、縦に4つ地図が並ぶと見づらいので、タブで切り替えられるようにしてみましょう。
+
+次のコードをヒートマップLayerの設定コード(layer = pdk.Layer)の上部に記載してください。
+
+```python
+# タブ切り替えのUI作成
+    spring, summer, autumn, winter = st.tabs(['春', '夏', '秋', '冬'])
+
+    with spring:
+        # (ここより下のコードはすべてインデントを一つ下げてください)
+```
+
+いかがですか？地図の上部に春夏秋冬のタブが表示されましたね。併せて春のタブでヒートマップが表示されていると思います。
+では、続いて夏、秋、冬のタブにそれぞれのヒートマップを表示させてみましょう。
+・・・もうお分かりですね。**with** 文を使ってタブを切り替え、その中にヒートマップのLayer設定と地図表示のコードを記載します。
+**頑張って自力で作成してみましょう！**
 '''
+
 
 '''
 ## 自分をほめる
@@ -303,4 +323,9 @@ Streamlitを使って作成したアプリは、HerokuやStreamlit Sharingなど
 Happy Streamlit coding! :sunglasses: :heart: :computer:
 '''
 
+'''
+### appendix
+本セッションで作成したコードの出来上がり見本は下記にデプロイしています。    
+https://caravan-app-handson-hiroshima.streamlit.app/
+'''
 
