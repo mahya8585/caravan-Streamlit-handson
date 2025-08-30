@@ -325,7 +325,7 @@ Happy Streamlit coding! :sunglasses: :heart: :computer:
 
 '''
 ### appendix
-本セッションで作成したコードの出来上がり見本は下記にデプロイしています。    
-https://caravan-handson-hiroshima.streamlit.app/
+本セッションで利用したドキュメントは下記にデプロイしています。    
+https://caravan-app-handson-hiroshima.streamlit.app/
 '''
 
